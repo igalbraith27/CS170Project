@@ -44,7 +44,19 @@ def parse_input(folder_name):
 
 def solve(graph, num_buses, size_bus, constraints):
     #TODO: Write this method as you like. We'd recommend changing the arguments here as well
-    return "Not solved"
+    output = []
+    n = list(graph.nodes)
+    print(n)
+    for b in range(num_buses):
+        bus = []
+        for s in range(size_bus):
+            if size_bus*b + s < len(n):
+                bus += n[size_bus*b + s]
+        output += [bus]
+
+    return output
+
+
 
 def main():
     '''
@@ -74,9 +86,12 @@ def main():
             #TODO: modify this to write your solution to your 
             #      file properly as it might not be correct to 
             #      just write the variable solution to a file
-            output_file.write(solution)
+
+            for i in range(len(solution)):
+                output_file.write(str(solution[i]))
 
             output_file.close()
+
 
 if __name__ == '__main__':
     main()

@@ -30,7 +30,6 @@ def gen_sets(g, numSets):
                 idx = math.floor(random.random() * (len(n) - 1))
             lst += [n[idx]]
             seen.add(idx)
-
         rv += [lst]
     return rv
 
@@ -63,7 +62,7 @@ def gen_problem(nodes, buses, bus_size, sets):
     f.close()
 
 gen_problem(5, 2, 3, 2)
-#gen_problem(26, 5, 20, 2)
+gen_problem(26, 5, 5, 2)
 #gen_problem(260, 10, 30, 8)
 #gen_problem(800, 40, 20, 10)
 
