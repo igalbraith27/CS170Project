@@ -43,7 +43,8 @@ def parse_input(folder_name):
     return graph, num_buses, size_bus, constraints
 
 def solve(graph, num_buses, size_bus, constraints):
-    #TODO: Write this method as you like. We'd recommend changing the arguments here as well
+
+    # This should be an initial greedy strategy that constructs a starting state for the annealer.
     output = []
     n = list(graph.nodes)
     print(n)
