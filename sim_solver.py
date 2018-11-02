@@ -6,7 +6,7 @@ from simanneal import Annealer
 
 
 class SimSolver(Annealer):
-    def __init__(self, state, distance_matrix, constraints, num_buses, size_bus):
+    def __init__(self, state, adjacency_matrix, constraints, num_buses, size_bus, graph):
         """The constructor for our annealer.
 
         Keyword arguments:
@@ -15,11 +15,13 @@ class SimSolver(Annealer):
         constraints -- should be a list of lists describing invalid groups.
         num_buses -- should be the integer k buses we have.
         size_bus -- should be the integer t size of the buses.
+        graph -- the instance of our problem as a networkX graph.
         """
-        self.distance_matrix = distance_matrix
+        self.adjacency_matrix = adjacency_matrix
         self.constraints = constraints
         self.num_buses = num_buses
         self.size_bus = size_bus
+        self.graph = graph
         super(SimSolver, self).__init__(state)
 
     def move(self):
@@ -43,47 +45,47 @@ class SimSolver(Annealer):
                 return -1
             if len(self.state[i]) <= 0:
                 return -1
-        '''
+
         bus_assignments = {}
-        attendance_count = 0
 
         # make sure each student is in exactly one bus
-        attendance = {student: False for student in graph.nodes()}
-        for i in range(len(assignments)):
-            if not all([student in graph for student in assignments[i]]):
-                return -1, "Bus {} references a non-existant student: {}".format(i, assignments[i])
-
-            for student in assignments[i]:
+        attendance = {student: False for student in self.graph.nodes()}
+        for i in range(len(self.state)):
+            # Checking if all students exist.
+            if not all([student in self.graph for student in self.state[i]]):
+                return -1
+            for student in self.state[i]:
                 # if a student appears more than once
                 if attendance[student] == True:
-                    print(assignments[i])
-                    return -1, "{0} appears more than once in the bus assignments".format(student)
+                    print(self.state[i])
+                    return -1
 
                 attendance[student] = True
                 bus_assignments[student] = i
 
         # make sure each student is accounted for
         if not all(attendance.values()):
-            return -1, "Not all students have been assigned a bus"
-
-        total_edges = graph.number_of_edges()
+            return -1
+        total_edges = self.graph.number_of_edges()
+        graph_copy = self.graph.copy()
         # Remove nodes for rowdy groups which were not broken up
-        for i in range(len(constraints)):
+        for i in range(len(self.constraints)):
             busses = set()
-            for student in constraints[i]:
+            for student in self.constraints[i]:
                 busses.add(bus_assignments[student])
             if len(busses) <= 1:
-                for student in constraints[i]:
-                    if student in graph:
-                        graph.remove_node(student)
+                for student in self.constraints[i]:
+                    if student in graph_copy:
+                        graph_copy.remove_node(student)
 
         # score output
         score = 0
-        for edge in graph.edges():
+        for edge in graph_copy.edges():
             if bus_assignments[edge[0]] == bus_assignments[edge[1]]:
                 score += 1
         score = score / total_edges
-        '''
+        return score
+
 
 if __name__ == '__main__':
 
