@@ -6,18 +6,16 @@ from simanneal import Annealer
 
 
 class SimSolver(Annealer):
-    def __init__(self, state, adjacency_matrix, constraints, num_buses, size_bus, graph):
+    def __init__(self, state, constraints, num_buses, size_bus, graph):
         """The constructor for our annealer.
 
         Keyword arguments:
         state -- should be a list of lists describing assignment of people to buses.
-        adjacency_matrix -- should be a completed adjacency matrix given set-up.
         constraints -- should be a list of lists describing invalid groups.
         num_buses -- should be the integer k buses we have.
         size_bus -- should be the integer t size of the buses.
         graph -- the instance of our problem as a networkX graph.
         """
-        self.adjacency_matrix = adjacency_matrix
         self.constraints = constraints
         self.num_buses = num_buses
         self.size_bus = size_bus
