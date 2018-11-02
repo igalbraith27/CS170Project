@@ -28,7 +28,7 @@ class SimSolver(Annealer):
         bus2 = random.randint(0, len(self.state) - 1)
         person1 = random.randint(0, len(self.state[bus1]) - 1)
         person2 = random.randint(0, len(self.state[bus2]) - 1)
-        self.state[person1], self.state[person2] = self.state[person2], self.state[person1]
+        self.state[bus1][person1], self.state[bus2][person2] = self.state[bus2][person2], self.state[bus1][person1]
 
     def energy(self):
         """Calculates the score of a given state."""
