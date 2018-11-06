@@ -52,7 +52,6 @@ def solve(graph, num_buses, size_bus, constraints):
         output.append([None])
     names = list(graph.nodes)
     names_set = set(graph.nodes)
-    print(names)
 
     # initial state, a randomly-ordered bunch of people on the bus
     while names_set:
@@ -65,6 +64,11 @@ def solve(graph, num_buses, size_bus, constraints):
                     output[i] = [x for x in output[i] if x is not None]
             else:
                 break
+    for i in range(len(output)):
+        while len(output[i]) < size_bus:
+            output[i].append(None)
+        if len(output[i]) > size_bus:
+            break
 
     '''
     for i in range(num_buses):
@@ -74,15 +78,30 @@ def solve(graph, num_buses, size_bus, constraints):
                 bus += names[size_bus*i + s]
         output += [bus]
     '''
-    print(names)
+    print("Constraints:")
+    print("\t", constraints)
+    print("Bus Size:")
+    print("\t", size_bus)
+    print("Num Buses:")
+    print("\t", num_buses)
+    print("Edges:")
+    for edge in graph.edges():
+        print("\t", edge)
+    print("Bad input:")
+    for lst in output:
+        print("\t", lst)
+
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
-    tsp.steps = 100000
+    auto_schedule = tsp.auto(minutes=1)
+    # {'tmin': ..., 'tmax': ..., 'steps': ...}
+
+    tsp.set_schedule(auto_schedule)
     # since our state is just a list, slice is the fastest way to copy
-    tsp.copy_strategy = "slice"
+    tsp.copy_strategy = "deepcopy"
     state, e = tsp.anneal()
 
     print()
-    print("%i score:" % e)
+    print("%f score:" % e)
     for lst in state:
         print("\t", lst)
     return state
@@ -96,7 +115,7 @@ def main():
         the portion which writes it to a file to make sure their output is
         formatted correctly.
     '''
-    size_categories = ["small", "medium", "large"]
+    size_categories = ["special"]
     if not os.path.isdir(path_to_outputs):
         os.mkdir(path_to_outputs)
 
@@ -117,9 +136,9 @@ def main():
             #TODO: modify this to write your solution to your 
             #      file properly as it might not be correct to 
             #      just write the variable solution to a file
-
+            print("DONE: ", str(solution))
             for i in range(len(solution)):
-                output_file.write(str(solution[i]))
+                output_file.write(str(solution[i]) + "\n")
 
             output_file.close()
 

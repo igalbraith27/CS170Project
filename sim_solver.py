@@ -30,19 +30,23 @@ class SimSolver(Annealer):
         person2 = random.randint(0, len(self.state[bus2]) - 1)
         self.state[bus1][person1], self.state[bus2][person2] = self.state[bus2][person2], self.state[bus1][person1]
 
+
     def energy(self):
         """Calculates the score of a given state."""
 
         # Ensuring we use correct number of buses. Should never be a problem.
         if len(self.state) != self.num_buses:
-            return -1
+            raise ValueError("Fuck.")
+            return 1000000000000000000
 
         # Making sure no bus is empty or above capacity.
         for i in range(len(self.state)):
             if len(self.state[i]) > self.size_bus:
-                return -1
+                raise ValueError("Fuck.")
+                return 1000000000000000000
             if len(self.state[i]) <= 0:
-                return -1
+                raise ValueError("Fuck.")
+                return 1000000000000000000
 
         bus_assignments = {}
 
@@ -50,20 +54,23 @@ class SimSolver(Annealer):
         attendance = {student: False for student in self.graph.nodes()}
         for i in range(len(self.state)):
             # Checking if all students exist.
+            # FIXME: ERROR HERE
             if not all([student in self.graph for student in self.state[i]]):
-                return -1
+                if self.state[i] == None:
+                    continue
+                # return -1
             for student in self.state[i]:
                 # if a student appears more than once
-                if attendance[student] == True:
-                    print(self.state[i])
-                    return -1
+                #if attendance[student] == True:
+                 #   print(self.state[i])
+                   # return -1
 
                 attendance[student] = True
                 bus_assignments[student] = i
 
         # make sure each student is accounted for
-        if not all(attendance.values()):
-            return -1
+        # if not all(attendance.values()):
+          #  return -1
         total_edges = self.graph.number_of_edges()
         graph_copy = self.graph.copy()
         # Remove nodes for rowdy groups which were not broken up
@@ -78,10 +85,16 @@ class SimSolver(Annealer):
 
         # score output
         score = 0
+
         for edge in graph_copy.edges():
             if bus_assignments[edge[0]] == bus_assignments[edge[1]]:
                 score += 1
         score = score / total_edges
+        score = 1 - score
+        score *= 100
+        # print(score)
+        #if score == 0:
+            #raise ValueError('A very specific bad thing happened.')
         return score
 
 

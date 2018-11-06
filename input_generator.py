@@ -61,8 +61,8 @@ def gen_problem(nodes, buses, bus_size, sets):
         f.write(str(s[i])+ "\n")
     f.close()
 
-gen_problem(5, 2, 3, 2)
-gen_problem(26, 5, 5, 2)
-#gen_problem(260, 10, 30, 8)
-#gen_problem(800, 40, 20, 10)
+gen_problem(6, 3, 2, 2)
+# gen_problem(26, 5, 5, 2)
+# gen_problem(260, 10, 30, 8)
+# gen_problem(800, 40, 20, 10)
 
