@@ -88,6 +88,7 @@ def solve(graph, num_buses, size_bus, constraints):
     for edge in graph.edges():
         print("\t", edge)
     print("Bad input:")
+
     for lst in output:
         print("\t", lst)
 
@@ -104,6 +105,8 @@ def solve(graph, num_buses, size_bus, constraints):
     print("%f score:" % e)
     for lst in state:
         print("\t", lst)
+    for i in range(len(state)):
+        state[i] = [x for x in output[i] if x is not None]
     return state
 
 
@@ -115,7 +118,7 @@ def main():
         the portion which writes it to a file to make sure their output is
         formatted correctly.
     '''
-    size_categories = ["special"]
+    size_categories = ["other"]
     if not os.path.isdir(path_to_outputs):
         os.mkdir(path_to_outputs)
 
