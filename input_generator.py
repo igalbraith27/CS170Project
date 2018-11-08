@@ -4,13 +4,13 @@ import os
 import math
 
 
-def gen_graph(nodes):
+def gen_graph(nodes, weight=0.5):
     g = nx.Graph()
     for i in range(nodes):
         g.add_node(i)
     for i in range(nodes):
         for j in range(i, nodes):
-            if i != j and random.random() > 0.5:
+            if i != j and random.random() > (1-weight):
                 g.add_edge(i, j)
                 print((i, j))
     return g
@@ -34,9 +34,9 @@ def gen_sets(g, numSets):
     return rv
 
 
-def gen_problem(nodes, buses, bus_size, sets):
+def gen_problem(nodes, buses, bus_size, sets, weight=0.5):
 
-    g = gen_graph(nodes)
+    g = gen_graph(nodes, weight)
     p = "./all_inputs/"
 
     if nodes >= 25 and nodes <= 50 and sets <= 100:
@@ -61,8 +61,7 @@ def gen_problem(nodes, buses, bus_size, sets):
         f.write(str(s[i])+ "\n")
     f.close()
 
-gen_problem(6, 3, 2, 2)
-# gen_problem(26, 5, 5, 2)
-# gen_problem(260, 10, 30, 8)
-# gen_problem(800, 40, 20, 10)
+#gen_problem(num_nodes, num_buses, bus_size, num_rowdy_sets, [OPTIONAL]edge_likelihood)
+gen_problem(15, 3, 7, 2, 0.1)
+
 
