@@ -135,7 +135,8 @@ def solve(graph, num_buses, size_bus, constraints):
     for lst in state:
         print("\t", lst)
     for i in range(len(state)):
-        state[i] = [x for x in output[i] if x is not None]
+        state[i] = [x for x in state[i] if x is not None]
+    print(state)
     return state
 
 
