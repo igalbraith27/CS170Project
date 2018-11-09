@@ -54,16 +54,45 @@ def solve(graph, num_buses, size_bus, constraints):
     names_set = set(graph.nodes)
 
     # initial state, a randomly-ordered bunch of people on the bus
-    while names_set:
-        for i in range(len(output)):
-            if names_set:
-                name = random.sample(names_set, 1)[0]
-                output[i].append(name)
-                names_set.remove(name)
+    def initialize_randomly():
+        while names_set:
+            for i in range(len(output)):
+                if names_set:
+                    name = random.sample(names_set, 1)[0]
+                    output[i].append(name)
+                    names_set.remove(name)
+                    if len(output[i]) == 2:
+                        output[i] = [x for x in output[i] if x is not None]
+                else:
+                    break
+
+    def weak_greedy():
+        """Loops through buses, placing together a randomly chosen student
+        and as many of their friends as possible. """
+        available_buses = list(range(num_buses))
+        while names_set:
+            for i in available_buses:
+                if len(output[i]) == size_bus:
+                    available_buses.remove(i)
+                    break
+                elif not names_set:
+                    break
+                student = random.sample(names_set, 1)[0]
+                friends = list(graph.adj[student])
+                output[i].append(student)
+                names_set.remove(student)
                 if len(output[i]) == 2:
                     output[i] = [x for x in output[i] if x is not None]
-            else:
-                break
+                for friend in friends:
+                    if len(output[i]) == size_bus:
+                        available_buses.remove(i)
+                        break
+                    if friend in names_set:
+                        output[i].append(friend)
+                        names_set.remove(friend)
+
+    weak_greedy()
+
     for i in range(len(output)):
         while len(output[i]) < size_bus:
             output[i].append(None)
@@ -93,7 +122,7 @@ def solve(graph, num_buses, size_bus, constraints):
         print("\t", lst)
 
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
-    auto_schedule = tsp.auto(minutes=5)
+    auto_schedule = tsp.auto(minutes=1)
     # {'tmin': ..., 'tmax': ..., 'steps': ...}
 
     tsp.set_schedule(auto_schedule)
