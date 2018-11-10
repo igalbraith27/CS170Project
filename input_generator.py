@@ -74,7 +74,7 @@ def gen_solution(nodes, buses, bus_size):
         student = random.randint(0, nodes-1)
         while student not in s:
             student = random.randint(0, nodes - 1)
-        solution += [[student]]
+        solution += [[str(student)]]
         s.remove(student)
     while s:
         rand_bus = math.floor(random.random()*buses)
@@ -82,7 +82,7 @@ def gen_solution(nodes, buses, bus_size):
             student = random.randint(0, nodes - 1)
             while student not in s:
                 student = random.randint(0, nodes - 1)
-            solution[rand_bus] += [student]
+            solution[rand_bus] += [str(student)]
             s.remove(student)
     p = path_to_outputs
 
@@ -108,32 +108,45 @@ def gen_solution(nodes, buses, bus_size):
 
 
 def gen_problem_from_solution(solution, nodes, bus_size, sets=None, weight=0.5):
-    print(solution)
     buses = len(solution)
     # Edge generation
     graph = nx.Graph()
     for i in range(nodes):
         graph.add_node(str(i))
-
+    print(solution)
     for i in range(len(solution)):
         for j in range(len(solution[i])-1):
             for k in range(j+1, len(solution[i])):
                 graph.add_edge(solution[i][j], solution[i][k])
         if i < buses-1:
             graph.add_edge(solution[i][random.randint(0,len(solution[i])-1)], solution[i+1][random.randint(0,len(solution[i+1])-1)])
+            graph.add_edge(solution[i][random.randint(0,len(solution[i])-1)], solution[i+1][random.randint(0,len(solution[i+1])-1)])
 
     # Rowdy set generation
     if not sets:
         sets = 2000 if nodes >= 500 else (1000 if nodes >= 250 else 100)
-    rowdy_sets = []
+    rowdy_sets = set()
+    len_rowdy_sets = len(rowdy_sets)
     while len(rowdy_sets) != sets:
         bus1, bus2 = random.randint(0, len(solution)-1), random.randint(0, len(solution)-1)
-        person1, person2 = random.randint(0, len(solution[bus1])), random.randint(0, len(solution[bus2]))
-        rowdy_sets += [[person1, person2]]
-        bus1, bus2 = random.randint(0, len(solution)-1), random.randint(0, len(solution)-1)
-        person1, person2 = random.randint(0, len(solution[bus1])), random.randint(0, len(solution[bus2]))
-        rowdy_sets += [[person1, person2]]
-    return graph, rowdy_sets
+        while bus1 == bus2:
+            bus1, bus2 = random.randint(0, len(solution)-1), random.randint(0, len(solution)-1)
+        person1, person2 = solution[bus1][random.randint(0, len(solution[bus1])-1)], solution[bus2][random.randint(0, len(solution[bus2])-1)]
+        rowdy_sets.add((min(person1, person2), max(person1, person2)))
+        if len(rowdy_sets) == len_rowdy_sets:
+            count += 1
+        else:
+            count = 0
+        len_rowdy_sets = len(rowdy_sets)
+        if count == 50:
+            break
+    
+    rowdy = []
+    rowdy_sets = list(rowdy_sets)
+    for t in rowdy_sets:
+        rowdy.append(list(t))
+
+    return graph, rowdy
 
 # gen_problem(num_nodes, num_buses, bus_size, num_rowdy_sets, [OPTIONAL]edge_likelihood)
 # gen_problem(15, 3, 7, 2, 0.1)
@@ -141,8 +154,15 @@ def gen_problem_from_solution(solution, nodes, bus_size, sets=None, weight=0.5):
 #gen_problem(num_nodes, num_buses, bus_size, num_rowdy_sets, [OPTIONAL]edge_likelihood)
 #gen_problem(500, 50, 15, 10, 0.001)
 
+def main():
+    gen_solution(50, 5, 10)
+    gen_solution(499, 20, 25)
+    gen_solution(1000, 25, 40)
 
-gen_solution(10, 4, 4)
+
+if __name__ == '__main__':
+    main()
+
 
 
 
