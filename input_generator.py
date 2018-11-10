@@ -7,7 +7,7 @@ import math
 def gen_graph(nodes, weight=0.5):
     g = nx.Graph()
     for i in range(nodes):
-        g.add_node(i)
+        g.add_node(str(i))
     for i in range(nodes):
         for j in range(i, nodes):
             if i != j and random.random() > (1-weight):
@@ -93,7 +93,7 @@ def gen_problem_from_solution(solution, nodes, bus_size, sets=None, weight=0.5):
     # Edge generation
     graph = nx.Graph()
     for i in range(nodes):
-        graph.add_node(i)
+        graph.add_node(str(i))
 
     for i in range(len(solution)):
         for j in range(len(solution[i])-1):
