@@ -83,6 +83,15 @@ def gen_solution(nodes, buses, bus_size):
             solution[rand_bus] += [student]
             s.remove(student)
 
+
+    output_file = open(output_category_path + "/" + input_name + ".out", "w")
+    for i in range(len(solution)):
+                output_file.write(str(solution[i]) + "\n")
+
+            output_file.close()
+
+
+
     graph, sets = gen_problem_from_solution(solution, nodes, bus_size)
     write_problem(graph, nodes, len(sets), buses, bus_size, sets)
 
@@ -115,11 +124,10 @@ def gen_problem_from_solution(solution, nodes, bus_size, sets=None, weight=0.5):
 # gen_problem(num_nodes, num_buses, bus_size, num_rowdy_sets, [OPTIONAL]edge_likelihood)
 # gen_problem(15, 3, 7, 2, 0.1)
 
-
-
-
 #gen_problem(num_nodes, num_buses, bus_size, num_rowdy_sets, [OPTIONAL]edge_likelihood)
 #gen_problem(500, 50, 15, 10, 0.001)
+
+
 gen_solution(10, 4, 4)
 
 
