@@ -41,7 +41,7 @@ def gen_problem(nodes, buses, bus_size, sets, weight=0.5):
 
     if nodes >= 25 and nodes <= 50 and sets <= 100:
         p += "small/"
-    elif nodes >= 250 and nodes <= 500 and sets <= 1000:
+    elif nodes >= 250 and nodes < 500 and sets <= 1000:
         p += "medium/"
     elif nodes >= 500 and nodes <= 1000 and sets <= 2000:
         p += "large/"
@@ -62,6 +62,6 @@ def gen_problem(nodes, buses, bus_size, sets, weight=0.5):
     f.close()
 
 #gen_problem(num_nodes, num_buses, bus_size, num_rowdy_sets, [OPTIONAL]edge_likelihood)
-gen_problem(15, 3, 7, 2, 0.1)
+gen_problem(500, 50, 15, 10, 0.001)
 
 

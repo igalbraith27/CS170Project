@@ -122,7 +122,7 @@ def solve(graph, num_buses, size_bus, constraints):
         print("\t", lst)
 
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
-    auto_schedule = tsp.auto(minutes=1)
+    auto_schedule = tsp.auto(minutes=5)
     # {'tmin': ..., 'tmax': ..., 'steps': ...}
 
     tsp.set_schedule(auto_schedule)
@@ -136,7 +136,6 @@ def solve(graph, num_buses, size_bus, constraints):
         print("\t", lst)
     for i in range(len(state)):
         state[i] = [x for x in state[i] if x is not None]
-    print(state)
     return state
 
 
@@ -148,7 +147,7 @@ def main():
         the portion which writes it to a file to make sure their output is
         formatted correctly.
     '''
-    size_categories = ["medium"]
+    size_categories = ["large"]
     if not os.path.isdir(path_to_outputs):
         os.mkdir(path_to_outputs)
 
