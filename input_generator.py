@@ -110,6 +110,9 @@ def gen_problem_from_solution(solution, nodes, bus_size, sets=None, weight=0.5):
         bus1, bus2 = random.randint(0, len(solution)-1), random.randint(0, len(solution)-1)
         person1, person2 = random.randint(0, len(solution[bus1])), random.randint(0, len(solution[bus2]))
         rowdy_sets += [[person1, person2]]
+        bus1, bus2 = random.randint(0, len(solution)-1), random.randint(0, len(solution)-1)
+        person1, person2 = random.randint(0, len(solution[bus1])), random.randint(0, len(solution[bus2]))
+        rowdy_sets += [[person1, person2]]
     return graph, rowdy_sets
 
 # gen_problem(num_nodes, num_buses, bus_size, num_rowdy_sets, [OPTIONAL]edge_likelihood)
