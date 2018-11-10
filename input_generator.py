@@ -2,6 +2,8 @@ import networkx as nx
 import random
 import os
 import math
+path_to_outputs = "./outputs/"
+path_to_inputs = "./all_inputs/"
 
 
 def gen_graph(nodes, weight=0.5):
@@ -41,7 +43,7 @@ def gen_problem(nodes, buses, bus_size, sets, weight=0.5):
     write_problem(g,nodes,sets,buses,bus_size,s)
 
 def write_problem(g,nodes,num_sets,buses,bus_size,sets):
-    p = "./all_inputs/"
+    p = path_to_inputs
 
     if nodes >= 25 and nodes <= 50 and num_sets <= 100:
         p += "small/"
@@ -82,17 +84,26 @@ def gen_solution(nodes, buses, bus_size):
                 student = random.randint(0, nodes - 1)
             solution[rand_bus] += [student]
             s.remove(student)
+    p = path_to_outputs
 
-
-    output_file = open(output_category_path + "/" + input_name + ".out", "w")
-    for i in range(len(solution)):
-                output_file.write(str(solution[i]) + "\n")
-
-            output_file.close()
-
-
+    if nodes >= 25 and nodes <= 50:
+        p += "small"
+    elif nodes >= 250 and nodes < 500:
+        p += "medium"
+    elif nodes >= 500 and nodes <= 1000:
+        p += "large"
+    else:
+        p += "other"
 
     graph, sets = gen_problem_from_solution(solution, nodes, bus_size)
+
+    input_name = "{0}-{1}-{2}-{3}".format(nodes, buses, bus_size, len(sets))
+
+    output_file = open(p + "/" + input_name + ".out", "w")
+    for i in range(len(solution)):
+        output_file.write(str(solution[i]) + "\n")
+    output_file.close()
+    
     write_problem(graph, nodes, len(sets), buses, bus_size, sets)
 
 
