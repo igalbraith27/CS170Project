@@ -7,7 +7,7 @@ import math
 def gen_graph(nodes, weight=0.5):
     g = nx.Graph()
     for i in range(nodes):
-        g.add_node(i)
+        g.add_node(str(i))
     for i in range(nodes):
         for j in range(i, nodes):
             if i != j and random.random() > (1-weight):
@@ -102,7 +102,7 @@ def gen_problem_from_solution(solution, nodes, bus_size, sets=None, weight=0.5):
     # Edge generation
     graph = nx.Graph()
     for i in range(nodes):
-        graph.add_node(i)
+        graph.add_node(str(i))
 
     for i in range(len(solution)):
         for j in range(len(solution[i])-1):
@@ -116,6 +116,9 @@ def gen_problem_from_solution(solution, nodes, bus_size, sets=None, weight=0.5):
         sets = 2000 if nodes >= 500 else (1000 if nodes >= 250 else 100)
     rowdy_sets = []
     while len(rowdy_sets) != sets:
+        bus1, bus2 = random.randint(0, len(solution)-1), random.randint(0, len(solution)-1)
+        person1, person2 = random.randint(0, len(solution[bus1])), random.randint(0, len(solution[bus2]))
+        rowdy_sets += [[person1, person2]]
         bus1, bus2 = random.randint(0, len(solution)-1), random.randint(0, len(solution)-1)
         person1, person2 = random.randint(0, len(solution[bus1])), random.randint(0, len(solution[bus2]))
         rowdy_sets += [[person1, person2]]
