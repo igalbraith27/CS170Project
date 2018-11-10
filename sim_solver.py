@@ -34,23 +34,22 @@ class SimSolver(Annealer):
     def energy(self):
         """Calculates the score of a given state."""
 
-        # Ensuring we use correct number of buses. Should never be a problem.
-        if len(self.state) != self.num_buses:
-            raise ValueError("Fuck.")
-            return 1000000000000000000
+        def check_correctness():
 
-        # Making sure no bus is empty or above capacity.
-        for i in range(len(self.state)):
-            if len(self.state[i]) > self.size_bus:
-                raise ValueError("Bus(es) over capacity. Current state: " + str(self.state))
-                return 1000000000000000000
-            if len(self.state[i]) <= 0:
-                raise ValueError("Bus(es) empty. Current state: " + str(self.state))
-                return 1000000000000000000
+            # Ensuring we use correct number of buses. Should never be a problem.
+            if len(self.state) != self.num_buses:
+                raise ValueError("State has incorrect number of buses. State buses = {}, number of buses should be {}.".format(len(self.state),self.num_buses))
+            # Making sure no bus is empty or above capacity.
+            for i in range(len(self.state)):
+                if len(self.state[i]) > self.size_bus:
+                    raise ValueError("Bus(es) over capacity. Current state: " + str(self.state))
+                if len(self.state[i]) <= 0:
+                    raise ValueError("Bus(es) empty. Current state: " + str(self.state))
 
+        #check_correctness()
         bus_assignments = {}
 
-        # make sure each student is in exactly one bus
+        # Make sure each student is in exactly one bus
         attendance = {student: False for student in self.graph.nodes()}
         for i in range(len(self.state)):
             # Checking if all students exist.
@@ -60,7 +59,7 @@ class SimSolver(Annealer):
                     continue
                 # return -1
             for student in self.state[i]:
-                # if a student appears more than once
+                #Check if a student appears more than once
                 #if attendance[student] == True:
                  #   print(self.state[i])
                    # return -1

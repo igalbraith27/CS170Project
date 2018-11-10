@@ -61,7 +61,38 @@ def gen_problem(nodes, buses, bus_size, sets, weight=0.5):
         f.write(str(s[i])+ "\n")
     f.close()
 
+
+def gen_solution(nodes, buses, bus_size):
+    solution = []
+    for i in range(buses):
+        solution += [[]]
+    for n in range(nodes):
+        rand_bus = math.floor(random.random()*buses)
+        if len(solution[rand_bus]) < bus_size:
+            solution[rand_bus] += [n]
+    print(solution)
+    return solution
+
+
+def gen_problem_from_solution(solution, nodes, buses, bus_size, sets, weight=0.5):
+    rowdy_sets = []
+    for i in range(sets):
+        rowdy_sets += [[]]
+    for j in range(buses-1):
+        for k in range(j+1, buses):
+            pass
+    return None
+
+
+# gen_problem(num_nodes, num_buses, bus_size, num_rowdy_sets, [OPTIONAL]edge_likelihood)
+# gen_problem(15, 3, 7, 2, 0.1)
+
+
+
+
 #gen_problem(num_nodes, num_buses, bus_size, num_rowdy_sets, [OPTIONAL]edge_likelihood)
 gen_problem(500, 50, 15, 10, 0.001)
+gen_solution(10, 4, 4)
+
 
 
