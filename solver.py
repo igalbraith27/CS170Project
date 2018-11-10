@@ -122,7 +122,7 @@ def solve(graph, num_buses, size_bus, constraints):
         print("\t", lst)
 
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
-    auto_schedule = tsp.auto(minutes=5)
+    auto_schedule = tsp.auto(minutes=3)
     # {'tmin': ..., 'tmax': ..., 'steps': ...}
 
     tsp.set_schedule(auto_schedule)
