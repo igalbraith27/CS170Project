@@ -16,5 +16,9 @@ pip install git+https://github.com/perrygeo/simanneal.git
 pip install networkx  
 ```
 
-### Runinng input generator  
-Modify the text at the bottom of input_generator.py depending on if you want to generate a random solution and corresponding output or just a random graph.
+### Running input generator  
+Run input_generator.py Note it will override existing graphs.   
+
+```
+python input_generator.py 
+```
