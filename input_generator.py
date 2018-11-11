@@ -3,7 +3,7 @@ import random
 import os
 import math
 path_to_outputs = "./outputs/"
-path_to_inputs = "./all_inputs/"
+path_to_inputs = "./inputs/"
 
 
 def gen_graph(nodes, weight=0.5):
@@ -46,16 +46,14 @@ def write_problem(g,nodes,num_sets,buses,bus_size,sets):
     p = path_to_inputs
 
     if nodes >= 25 and nodes <= 50 and num_sets <= 100:
-        p += "small/"
+        p += "small"
     elif nodes >= 250 and nodes < 500 and num_sets <= 1000:
-        p += "medium/"
+        p += "medium"
     elif nodes >= 500 and nodes <= 1000 and num_sets <= 2000:
-        p += "large/"
+        p += "large"
     else:
-        p += "other/"
+        p += "other"
 
-    graph_name = "{0}-{1}-{2}-{3}".format(nodes, buses, bus_size, num_sets)
-    p += graph_name
     if not os.path.isdir(p):
         os.mkdir(p)
     nx.write_gml(g, p + "/graph.gml")
@@ -69,7 +67,7 @@ def write_problem(g,nodes,num_sets,buses,bus_size,sets):
 
 def gen_solution(nodes, buses, bus_size):
     solution = []
-    s = set(list(range(0,nodes-1)))
+    s = set(list(range(0,nodes)))
     for i in range(buses):
         student = random.randint(0, nodes-1)
         while student not in s:
@@ -84,7 +82,8 @@ def gen_solution(nodes, buses, bus_size):
                 student = random.randint(0, nodes - 1)
             solution[rand_bus] += [str(student)]
             s.remove(student)
-    p = path_to_outputs
+   
+    p = ""
 
     if nodes >= 25 and nodes <= 50:
         p += "small"
@@ -97,9 +96,7 @@ def gen_solution(nodes, buses, bus_size):
 
     graph, sets = gen_problem_from_solution(solution, nodes, bus_size)
 
-    input_name = "{0}-{1}-{2}-{3}".format(nodes, buses, bus_size, len(sets))
-
-    output_file = open(p + "/" + input_name + ".out", "w")
+    output_file = open(path_to_outputs + p + ".out", "w")
     for i in range(len(solution)):
         output_file.write(str(solution[i]) + "\n")
     output_file.close()
