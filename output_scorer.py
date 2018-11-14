@@ -32,6 +32,7 @@ def score_output(input_folder, output_file):
     parameters = open(input_folder + "/parameters.txt")
     num_buses = int(parameters.readline())
     size_bus = int(parameters.readline())
+
     constraints = []
 
     for line in parameters:
@@ -45,6 +46,12 @@ def score_output(input_folder, output_file):
         line = line[1: -2]
         curr_assignment = [node.replace("'", "") for node in line.split(", ")]
         assignments.append(curr_assignment)
+
+    return get_score(graph, constraints, num_buses, size_bus, assignments)
+    
+
+def get_score(graph, constraints, num_buses, size_bus, assignments):
+
 
     if len(assignments) != num_buses:
         return -1, "Must assign students to exactly {} buses, found {} buses".format(num_buses, len(assignments))

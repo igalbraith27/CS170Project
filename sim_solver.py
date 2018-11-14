@@ -45,6 +45,13 @@ class SimSolver(Annealer):
                     raise ValueError("Bus(es) over capacity. Current state: " + str(self.state))
                 if len(self.state[i]) <= 0:
                     raise ValueError("Bus(es) empty. Current state: " + str(self.state))
+        
+        # Making sure no bus is empty
+        for i in range(len(self.state)):
+            newState = []
+            newState = [x for x in self.state[i] if x is not None]
+            if len(newState) <= 0:
+                return 100
 
         #check_correctness()
         bus_assignments = {}
