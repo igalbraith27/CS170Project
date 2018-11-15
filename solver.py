@@ -98,7 +98,7 @@ def solve(graph, num_buses, size_bus, constraints):
         while len(output[i]) < size_bus:
             output[i].append(None)
         if len(output[i]) > size_bus:
-            break
+            raise ValueError("We got too big")
 
     '''
     for i in range(num_buses):
@@ -108,7 +108,7 @@ def solve(graph, num_buses, size_bus, constraints):
                 bus += names[size_bus*i + s]
         output += [bus]
     '''
-    """print("Constraints:")
+    print("Constraints:")
     print("\t", constraints)
     print("Bus Size:")
     print("\t", size_bus)
@@ -120,7 +120,7 @@ def solve(graph, num_buses, size_bus, constraints):
     print("Bad input:")
 
     for lst in output:
-        print("\t", lst)"""
+        print("\t", lst)
 
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
     auto_schedule = tsp.auto(minutes=1)
@@ -174,7 +174,7 @@ def main():
             solution = solve(graph, num_buses, size_bus, constraints)
             #print("DONE: ", str(solution))
             sol_score1 = get_score(graph, constraints, num_buses, size_bus, solution)
-            sol_score = 1 - get_score(graph, constraints, num_buses, size_bus, solution)[0]
+            sol_score = 1 - sol_score1[0]
             if sol_score >= 0:
                 outputfoldername = output_category_path + "/" + input_name + ".out"
                 if os.path.isfile(outputfoldername):
@@ -185,6 +185,7 @@ def main():
                 new_scores += sol_score
                 improvement = ((prev_score - sol_score)/prev_score)*100
                 print("Old score: {} | New score: {} | Improvement: {}%".format(prev_score, sol_score, improvement))
+                print(sol_score1[1])
                 if improvement > 0:
                     output_file = open(outputfoldername, "w")     
                     for i in range(len(solution)):

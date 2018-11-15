@@ -94,7 +94,7 @@ def get_score(graph, constraints, num_buses, size_bus, assignments):
         if len(busses) <= 1:
             for student in constraints[i]:
                 if student in graph:
-                    print(student)
+                    # print(student)
                     graph.remove_node(student)
 
     # score output
