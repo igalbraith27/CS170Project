@@ -108,6 +108,7 @@ def solve(graph, num_buses, size_bus, constraints):
                 bus += names[size_bus*i + s]
         output += [bus]
     '''
+    '''
     print("Constraints:")
     print("\t", constraints)
     print("Bus Size:")
@@ -121,7 +122,7 @@ def solve(graph, num_buses, size_bus, constraints):
 
     for lst in output:
         print("\t", lst)
-
+    '''
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
     auto_schedule = tsp.auto(minutes=2)
     # {'tmin': ..., 'tmax': ..., 'steps': ...}
