@@ -123,7 +123,7 @@ def solve(graph, num_buses, size_bus, constraints):
         print("\t", lst)"""
 
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
-    auto_schedule = tsp.auto(minutes=1)
+    auto_schedule = tsp.auto(minutes=2)
     # {'tmin': ..., 'tmax': ..., 'steps': ...}
 
     tsp.set_schedule(auto_schedule)
@@ -183,6 +183,7 @@ def main():
                     prev_score = 1
                 old_scores += prev_score
                 new_scores += sol_score
+                prev_score = prev_score if prev_score > 0 else 0.000000001
                 improvement = ((prev_score - sol_score)/prev_score)*100
                 print("Old score: {} | New score: {} | Improvement: {}%".format(prev_score, sol_score, improvement))
                 if improvement > 0:
@@ -194,6 +195,7 @@ def main():
             else:
                 print(sol_score1[1])
             count +=1
+        old_scores = old_scores if old_scores > 0 else 0.00000001
         print("Total improvement this batch: {}%".format(((old_scores - new_scores)/old_scores)*100))
             
 
