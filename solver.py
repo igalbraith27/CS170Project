@@ -1,5 +1,6 @@
 import networkx as nx
 import os
+import sys
 from sim_solver import SimSolver
 import random
 from output_scorer import get_score, score_output
@@ -32,6 +33,7 @@ def parse_input(folder_name):
             size_buses - an integer representing the number of students that can fit on a bus
             constraints - a list where each element is a list vertices which represents a single rowdy group
     '''
+    print(folder_name + "/graph.gml")
     graph = nx.read_gml(folder_name + "/graph.gml")
     parameters = open(folder_name + "/parameters.txt")
     num_buses = int(parameters.readline())
@@ -124,10 +126,13 @@ def solve(graph, num_buses, size_bus, constraints):
         print("\t", lst)
     '''
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
-    auto_schedule = tsp.auto(minutes=2)
-    # {'tmin': ..., 'tmax': ..., 'steps': ...}
+    #auto_schedule = tsp.auto(minutes=1)
+    tsp.Tmax = 150
+    tsp.Tmin = 1
+    tsp.steps = 2000
+    tsp.updates = 1000
 
-    tsp.set_schedule(auto_schedule)
+    #tsp.set_schedule(auto_schedule)
     # since our state is just a list, slice is the fastest way to copy
     tsp.copy_strategy = "deepcopy"
     state, e = tsp.anneal()
@@ -143,25 +148,34 @@ def solve(graph, num_buses, size_bus, constraints):
 
 
 
-def main():
+def main(folders=["small", "medium", "large"], graphName = None):
     '''
         Main method which iterates over all inputs and calls `solve` on each.
         The student should modify `solve` to return their solution and modify
         the portion which writes it to a file to make sure their output is
         formatted correctly.
     '''
-    size_categories = ["small"]
+    size_categories = folders
     if not os.path.isdir(path_to_outputs):
         os.mkdir(path_to_outputs)
 
     for size in size_categories:
         category_path = path_to_inputs + "/" + size
         output_category_path = path_to_outputs + "/" + size
+        print(category_path)
         category_dir = os.fsencode(category_path)
         
         if not os.path.isdir(output_category_path):
             os.mkdir(output_category_path)
-        folders = os.listdir(category_dir)
+
+        #If the user is not specifying a particular graph to run on
+        if not graphName:
+            print(category_dir)
+            folders = os.listdir(category_dir)
+        else:
+            folders = [graphName]
+        
+        #Shuffles input folders so they don't run in order
         random.shuffle(folders)
         num_left = len(folders)
         count = 1
@@ -170,39 +184,55 @@ def main():
         for input_folder in folders:
             input_name = os.fsdecode(input_folder) 
             inputfoldername = (category_path + "/" + input_name)
-            graph, num_buses, size_bus, constraints = parse_input(inputfoldername)
-            print("Solving {} ({}/{})".format(input_name, count, num_left))
-            solution = solve(graph, num_buses, size_bus, constraints)
-            #print("DONE: ", str(solution))
-            sol_score1 = get_score(graph, constraints, num_buses, size_bus, solution)
-            sol_score = 1 - sol_score1[0]
-            if sol_score >= 0:
-                outputfoldername = output_category_path + "/" + input_name + ".out"
-                if os.path.isfile(outputfoldername):
-                    prev_score = 1 - score_output(inputfoldername, outputfoldername)[0]
-                else:
-                    prev_score = 1
-                old_scores += prev_score
-                new_scores += sol_score
-                prev_score = prev_score if prev_score > 0 else 0.000000001
-                improvement = ((prev_score - sol_score)/prev_score)*100
-                print("Old score: {} | New score: {} | Improvement: {}%".format(prev_score, sol_score, improvement))
-                print(sol_score1[1])
-                if improvement > 0:
-                    output_file = open(outputfoldername, "w")     
-                    for i in range(len(solution)):
-                        output_file.write(str(solution[i]) + "\n")
+            outputfoldername = output_category_path + "/" + input_name + ".out"
 
-                    output_file.close()
-            else:
-                print(sol_score1[1])
-            count +=1
+            # The next line ensures that the solver only solves the graphs that haven't yet been solved. We'll need to take it out once we have solved everything. 
+            if not False:
+                graph, num_buses, size_bus, constraints = parse_input(inputfoldername)
+                print("Solving {} ({}/{})".format(input_name, count, num_left))
+                solution = solve(graph, num_buses, size_bus, constraints)
+                #print("DONE: ", str(solution))
+                sol_score1 = get_score(graph, constraints, num_buses, size_bus, solution)
+                sol_score = 1 - sol_score1[0]
+                if sol_score >= 0:
+                    if os.path.isfile(outputfoldername):
+                        prev_score = 1 - score_output(inputfoldername, outputfoldername)[0]
+                    else:
+                        prev_score = 1
+                    old_scores += prev_score
+                    new_scores += sol_score
+                    prev_score = prev_score if prev_score > 0 else 0.000000001
+                    improvement = ((prev_score - sol_score)/prev_score)*100
+                    print("Old score: {} | New score: {} | Improvement: {}%".format(prev_score, sol_score, improvement))
+                    print(sol_score1[1])
+                    if improvement > 0:
+                        output_file = open(outputfoldername, "w")     
+                        for i in range(len(solution)):
+                            output_file.write(str(solution[i]) + "\n")
+
+                        output_file.close()
+                else:
+                    print(sol_score1[1])
+                count +=1
         old_scores = old_scores if old_scores > 0 else 0.00000001
+        print("-"*80)
         print("Total improvement this batch: {}%".format(((old_scores - new_scores)/old_scores)*100))
+        print("-"*80)
+
             
 
 
 if __name__ == '__main__':
-    main()
+    len_args = len(sys.argv)
+    print("Found {} args".format(len_args))
+    print(sys.argv[1])
+    if len_args == 1:
+        main()
+    elif len_args == 2:
+        main([sys.argv[1]])
+    elif len_args == 3:
+        main([sys.argv[1]], sys.argv[2])
+    else:
+        raise ValueError("Bad input format.")
 
 

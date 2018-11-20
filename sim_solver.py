@@ -51,7 +51,7 @@ class SimSolver(Annealer):
             newState = []
             newState = [x for x in self.state[i] if x is not None]
             if len(newState) <= 0:
-                return 100
+                return 1000000
 
         #check_correctness()
         bus_assignments = {}
