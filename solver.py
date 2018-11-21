@@ -75,6 +75,10 @@ def solve(graph, num_buses, size_bus, constraints):
         """Loops through buses, placing together a randomly chosen student
         and as many of their friends as possible. """
         available_buses = list(range(num_buses))
+        for bus in available_buses:
+            student = random.sample(names_set, 1)[0]
+            names_set.remove(student)
+            output[bus].append(student)
         while names_set:
             for i in available_buses:
                 if len(output[i]) == size_bus:
@@ -202,7 +206,8 @@ def main(folders=["small", "medium", "large"], graphName = None):
                 sol_score1 = get_score(graph, constraints, num_buses, size_bus, solution)
                 sol_score = 1 - sol_score1[0]
                 if sol_score >= 0:
-                    if os.path.isfile(outputfoldername):
+                    fileExists = os.path.isfile(outputfoldername)
+                    if fileExists:
                         prev_score = 1 - score_output(inputfoldername, outputfoldername)[0]
                     else:
                         prev_score = 1
@@ -213,7 +218,7 @@ def main(folders=["small", "medium", "large"], graphName = None):
                     print()
                     print("Old score: {0:.2f}".format(prev_score).ljust(19) + "|".ljust(3) + "New score: {0:.2f}".format(sol_score).ljust(19) + "|".ljust(3) + "Improvement: {0:.2f}%".format(improvement).ljust(15))
                     print(sol_score1[1])
-                    if improvement > 0:
+                    if improvement > 0 and sol_score <= 1:
                         writelocation = my_outputs + "/" + size + "/" + input_name + ".out"
                         output_file = open(writelocation, "w")     
                         for i in range(len(solution)):
