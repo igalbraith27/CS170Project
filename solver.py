@@ -139,20 +139,20 @@ def solve(graph, num_buses, size_bus, constraints):
     #auto_schedule = tsp.auto(minutes=0.5)
     num_nodes = len(graph.nodes)
     if num_nodes <= 50:
-        tsp.Tmax = 5
-        tsp.Tmin = 0.0001
+        tsp.Tmax = 3
+        tsp.Tmin = 0.00001
         tsp.steps = 80000
         tsp.updates = 500
     elif num_nodes <= 500:
-        tsp.Tmax = 7
+        tsp.Tmax = 5
         tsp.Tmin = 0.01
-        tsp.steps = 10000
-        tsp.updates = 2000
+        tsp.steps = 16000
+        tsp.updates = 3000
     else:
-        tsp.Tmax = 10
-        tsp.Tmin = 0.1
-        tsp.steps = 1200
-        tsp.updates = 4000
+        tsp.Tmax = 15
+        tsp.Tmin = 0.01
+        tsp.steps = 7000
+        tsp.updates = 10000
 
 
     #tsp.set_schedule(auto_schedule)
@@ -211,6 +211,7 @@ def main(folders=["small", "medium", "large"], graphName = None):
             input_name = os.fsdecode(input_folder) 
             inputfoldername = (category_path + "/" + input_name)
             outputfoldername = output_category_path + "/" + input_name + ".out"
+            localoutputname = my_outputs + "/" + size + "/" + input_name + ".out"
 
             # The next line ensures that the solver only solves the graphs that haven't yet been solved. We'll need to take it out once we have solved everything. 
             # if not os.path.isfile(outputfoldername):
@@ -224,7 +225,10 @@ def main(folders=["small", "medium", "large"], graphName = None):
                 sol_score = 1 - sol_score1[0]
                 if sol_score >= 0:
                     fileExists = os.path.isfile(outputfoldername)
-                    if fileExists:
+                    fileExistsLocally = os.path.isfile(localoutputname)
+                    if fileExistsLocally:
+                        prev_score = 1 - score_output(inputfoldername, localoutputname)[0]
+                    elif fileExists:
                         prev_score = 1 - score_output(inputfoldername, outputfoldername)[0]
                     else:
                         prev_score = 1
@@ -235,12 +239,11 @@ def main(folders=["small", "medium", "large"], graphName = None):
                     print()
                     print("Old score: {0:.2f}".format(prev_score).ljust(19) + "|".ljust(3) + "New score: {0:.2f}".format(sol_score).ljust(19) + "|".ljust(3) + "Improvement: {0:.2f}%".format(improvement).ljust(15))
                     print(sol_score1[1])
-                    if improvement > 0 and sol_score <= 1:
+                    if (improvement > 0 and sol_score <= 1) or (sol_score == 1 and not fileExists):
                         writelocation = my_outputs + "/" + size + "/" + input_name + ".out"
                         output_file = open(writelocation, "w")     
                         for i in range(len(solution)):
                             output_file.write(str(solution[i]) + "\n")
-
                         output_file.close()
                 else:
                     print(sol_score1[1])

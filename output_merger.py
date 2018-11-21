@@ -23,25 +23,32 @@ def main(folder):
 
         for output in outputs:
             outputfoldername = main_outputs + "/" + size_category + "/" + output 
-            fileExists = os.path.isfile(outputfoldername)
             localoutputname = folder + "/" + size_category + "/" + output
             inputfoldername = main_inputs + "/" + size_category + "/" + output[:-4]
-            #Check if exists in main_outputs/folder
+            fileExists = os.path.isfile(outputfoldername)
+            fileExistsLocally = os.path.isfile(localoutputname)
+            
+            #Check if already exists in local inputs / main outputs folder
+
+            
             if fileExists:
                 prev_score = 1 - score_output(inputfoldername, outputfoldername)[0]
             else:
                 prev_score = 1
             
-            
-            #If exists, run score comparison, overwrite if better score
+            #If exists, run score comparison
             new_score = 1 - score_output(inputfoldername, localoutputname)[0]
             prev_score = prev_score if prev_score > 0 else 0.000000001
             old_scores += prev_score
             new_scores += new_score
             improvement = ((prev_score - new_score)/prev_score)*100
 
-            if improvement > 0 and new_score <= 1:
-                print("[GRAPH {}]".format(output[:-4]).ljust(14) + "Old score: {0:.6f}".format(prev_score).ljust(21) + "|".ljust(3) + "New score: {0:.6f}".format(new_score).ljust(21) + "|".ljust(3) + "Improvement: {0:.2f}%".format(improvement).ljust(15))
+            print("[GRAPH {}]".format(output[:-4]).ljust(14) + "Old score: {0:.6f}".format(prev_score).ljust(21) + "|".ljust(3) + "New score: {0:.6f}".format(new_score).ljust(21) + "|".ljust(3) + "Improvement: {0:.2f}%".format(improvement).ljust(15))
+            
+            # Overwrite if better score
+            if improvement > 0 and new_score < 1:
+                shutil.move(localoutputname, outputfoldername)
+            elif new_score == 1 and not fileExists:
                 shutil.move(localoutputname, outputfoldername)
             else:
                 #Delete from folder
