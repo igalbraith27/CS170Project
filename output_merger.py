@@ -10,12 +10,19 @@ main_inputs = "./inputs"
 
 def main(folder):
     old_scores, new_scores = 0, 0
-
+    print_results = False
     #Iterate through small, medium, large
     for size_category in os.listdir(folder):
-
         #For each output in folder:
-        for output in os.listdir(folder + "/" + size_category):
+        outputs = os.listdir(folder + "/" + size_category)
+        if len(outputs) == 0:
+            print("No files to merge in {}.".format(size_category))
+        else:
+            print("Merging files in {}...".format(size_category))
+            print_results = True
+
+        for output in outputs:
+            
             outputfoldername = main_outputs + "/" + size_category + "/" + output 
             localoutputname = folder + "/" + size_category + "/" + output
             inputfoldername = main_inputs + "/" + size_category + "/" + output[:-4]
@@ -40,11 +47,12 @@ def main(folder):
                 #Delete from folder
                 os.remove(localoutputname)
                 
-    #Print batch improvement
-    old_scores = old_scores if old_scores > 0 else 0.00000001
-    print("-"*80)
-    print("Total improvement this batch: {0:.2f}%".format(((old_scores - new_scores)/old_scores)*100))
-    print("-"*80)
+    if print_results:
+        #Print batch improvement
+        old_scores = old_scores if old_scores > 0 else 0.00000001
+        print("-"*80)
+        print("Total improvement this batch: {0:.2f}%".format(((old_scores - new_scores)/old_scores)*100))
+        print("-"*80)
 
 def run_all():
     for f in ["gabby", "ian", "dustyn"]:

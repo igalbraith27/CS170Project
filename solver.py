@@ -187,14 +187,15 @@ def main(folders=["small", "medium", "large"], graphName = None):
         old_scores = 0
         new_scores = 0
         for input_folder in folders:
-            print("="*80)
             input_name = os.fsdecode(input_folder) 
             inputfoldername = (category_path + "/" + input_name)
             outputfoldername = output_category_path + "/" + input_name + ".out"
 
             # The next line ensures that the solver only solves the graphs that haven't yet been solved. We'll need to take it out once we have solved everything. 
             # if not os.path.isfile(outputfoldername):
-            if not False:
+            # if not False:
+            if not os.path.isfile(outputfoldername):
+                print("="*80)
                 graph, num_buses, size_bus, constraints = parse_input(inputfoldername)
                 print("Solving {} ({}/{})".format(input_name, count, num_left))
                 solution = solve(graph, num_buses, size_bus, constraints)
@@ -209,6 +210,7 @@ def main(folders=["small", "medium", "large"], graphName = None):
                     new_scores += sol_score
                     prev_score = prev_score if prev_score > 0 else 0.000000001
                     improvement = ((prev_score - sol_score)/prev_score)*100
+                    print()
                     print("Old score: {0:.2f}".format(prev_score).ljust(19) + "|".ljust(3) + "New score: {0:.2f}".format(sol_score).ljust(19) + "|".ljust(3) + "Improvement: {0:.2f}%".format(improvement).ljust(15))
                     print(sol_score1[1])
                     if improvement > 0:
