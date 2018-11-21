@@ -38,11 +38,13 @@ def main(folder):
             
             #If exists, run score comparison
             new_score = 1 - score_output(inputfoldername, localoutputname)[0]
-            prev_score = prev_score if prev_score > 0 else 0.000000001
+            if new_score == prev_score:
+                improvement = 0
+            else:
+                prev_score = prev_score if prev_score > 0 else 0.000000001
+                improvement = ((prev_score - new_score)/prev_score)*100
             old_scores += prev_score
             new_scores += new_score
-            improvement = ((prev_score - new_score)/prev_score)*100
-
             print("[GRAPH {}]".format(output[:-4]).ljust(14) + "Old score: {0:.6f}".format(prev_score).ljust(21) + "|".ljust(3) + "New score: {0:.6f}".format(new_score).ljust(21) + "|".ljust(3) + "Improvement: {0:.2f}%".format(improvement).ljust(15))
             
             # Overwrite if better score
