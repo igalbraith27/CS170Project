@@ -40,8 +40,8 @@ def main(folder):
             new_scores += new_score
             improvement = ((prev_score - new_score)/prev_score)*100
 
-            print("[GRAPH {}]".format(output[:-4]).ljust(14) + "Old score: {0:.6f}".format(prev_score).ljust(21) + "|".ljust(3) + "New score: {0:.6f}".format(new_score).ljust(21) + "|".ljust(3) + "Improvement: {0:.2f}%".format(improvement).ljust(15))
             if improvement > 0 and new_score <= 1:
+                print("[GRAPH {}]".format(output[:-4]).ljust(14) + "Old score: {0:.6f}".format(prev_score).ljust(21) + "|".ljust(3) + "New score: {0:.6f}".format(new_score).ljust(21) + "|".ljust(3) + "Improvement: {0:.2f}%".format(improvement).ljust(15))
                 shutil.move(localoutputname, outputfoldername)
             else:
                 #Delete from folder

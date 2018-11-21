@@ -54,9 +54,11 @@ def solve(graph, num_buses, size_bus, constraints):
     # This should be an initial greedy strategy that constructs a starting state for the annealer.
     output = []
     for x in range(num_buses):
-        output.append([None])
+        output.append([])
     names = list(graph.nodes)
     names_set = set(graph.nodes)
+
+    
 
     # initial state, a randomly-ordered bunch of people on the bus
     def initialize_randomly():
@@ -79,6 +81,8 @@ def solve(graph, num_buses, size_bus, constraints):
             student = random.sample(names_set, 1)[0]
             names_set.remove(student)
             output[bus].append(student)
+
+        count = 0
         while names_set:
             for i in available_buses:
                 if len(output[i]) == size_bus:
@@ -133,10 +137,23 @@ def solve(graph, num_buses, size_bus, constraints):
     '''
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
     #auto_schedule = tsp.auto(minutes=0.5)
-    tsp.Tmax = 5
-    tsp.Tmin = 0.001
-    tsp.steps = 2000
-    tsp.updates = 500
+    num_nodes = len(graph.nodes)
+    if num_nodes <= 50:
+        tsp.Tmax = 5
+        tsp.Tmin = 0.0001
+        tsp.steps = 80000
+        tsp.updates = 500
+    elif num_nodes <= 500:
+        tsp.Tmax = 7
+        tsp.Tmin = 0.01
+        tsp.steps = 10000
+        tsp.updates = 2000
+    else:
+        tsp.Tmax = 10
+        tsp.Tmin = 0.1
+        tsp.steps = 1200
+        tsp.updates = 4000
+
 
     #tsp.set_schedule(auto_schedule)
     #print("Tmax: {}".format(tsp.Tmax))
@@ -198,7 +215,7 @@ def main(folders=["small", "medium", "large"], graphName = None):
             # The next line ensures that the solver only solves the graphs that haven't yet been solved. We'll need to take it out once we have solved everything. 
             # if not os.path.isfile(outputfoldername):
             # if not False:
-            if not os.path.isfile(outputfoldername):
+            if not False:
                 print("="*80)
                 graph, num_buses, size_bus, constraints = parse_input(inputfoldername)
                 print("Solving {} ({}/{})".format(input_name, count, num_left))
