@@ -48,7 +48,7 @@ def parse_input(folder_name):
 
     return graph, num_buses, size_bus, constraints
 
-def solve(graph, num_buses, size_bus, constraints):
+def solve(graph, num_buses, size_bus, constraints, assignments=None):
     difficulty = nx.number_of_nodes(graph) + len(constraints)
     #print("Difficulty: {}".format(difficulty))
     # This should be an initial greedy strategy that constructs a starting state for the annealer.
@@ -104,8 +104,15 @@ def solve(graph, num_buses, size_bus, constraints):
                         output[i].append(friend)
                         names_set.remove(friend)
 
-    weak_greedy()
+    
+    if not assignments:
+        weak_greedy()
+        #initialize_randomly()
+    else:
+        output = assignments
 
+
+    # Pad buses with Nones
     for i in range(len(output)):
         while len(output[i]) < size_bus:
             output[i].append(None)
@@ -146,7 +153,7 @@ def solve(graph, num_buses, size_bus, constraints):
     elif num_nodes <= 500:
         tsp.Tmax = 5
         tsp.Tmin = 0.01
-        tsp.steps = 16000
+        tsp.steps = 6000
         tsp.updates = 3000
     else:
         tsp.Tmax = 15
@@ -183,6 +190,8 @@ def main(folders=["small", "medium", "large"], graphName = None):
         the portion which writes it to a file to make sure their output is
         formatted correctly.
     '''
+    use_previous_solution = True
+    
     size_categories = folders
     if not os.path.isdir(path_to_outputs):
         os.mkdir(path_to_outputs)
@@ -218,14 +227,29 @@ def main(folders=["small", "medium", "large"], graphName = None):
             # if not False:
             if not False:
                 print("="*80)
+                
+                fileExists = os.path.isfile(outputfoldername)
+                fileExistsLocally = os.path.isfile(localoutputname)
                 graph, num_buses, size_bus, constraints = parse_input(inputfoldername)
+                
                 print("Solving {} ({}/{})".format(input_name, count, num_left))
-                solution = solve(graph, num_buses, size_bus, constraints)
+                
+                if not fileExists or not use_previous_solution:
+                    solution = solve(graph, num_buses, size_bus, constraints)
+                else:
+                    output = open(outputfoldername)
+                    assignments = []
+                    for line in output:
+                        line = line[1: -2]
+                        curr_assignment = [node.replace("'", "") for node in line.split(", ")]
+                        assignments.append(curr_assignment)
+                    output.close()
+                    solution = solve(graph, num_buses, size_bus, constraints, assignments)
                 sol_score1 = get_score(graph, constraints, num_buses, size_bus, solution)
                 sol_score = 1 - sol_score1[0]
+                
+                
                 if sol_score >= 0:
-                    fileExists = os.path.isfile(outputfoldername)
-                    fileExistsLocally = os.path.isfile(localoutputname)
                     if fileExistsLocally:
                         prev_score = 1 - score_output(inputfoldername, localoutputname)[0]
                     elif fileExists:
