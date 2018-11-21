@@ -110,8 +110,6 @@ def solve(graph, num_buses, size_bus, constraints, assignments=None):
         #initialize_randomly()
     else:
         output = assignments
-
-
     # Pad buses with Nones
     for i in range(len(output)):
         while len(output[i]) < size_bus:
@@ -247,8 +245,6 @@ def main(folders=["small", "medium", "large"], graphName = None):
                     solution = solve(graph, num_buses, size_bus, constraints, assignments)
                 sol_score1 = get_score(graph, constraints, num_buses, size_bus, solution)
                 sol_score = 1 - sol_score1[0]
-
-
                 if sol_score >= 0:
                     if fileExistsLocally:
                         prev_score = 1 - score_output(inputfoldername, localoutputname)[0]
