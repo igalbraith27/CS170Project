@@ -7,7 +7,7 @@ from output_scorer import get_score, score_output
 from myfolder import folder
 
 ###########################################
-# Change this variable to the path to 
+# Change this variable to the path to
 # the folder containing all three input
 # size category folders
 ###########################################
@@ -15,7 +15,7 @@ path_to_inputs = "./inputs"
 
 ###########################################
 # Change this variable if you want
-# your outputs to be put in a 
+# your outputs to be put in a
 # different folder
 ###########################################
 my_outputs = "./" + folder
@@ -40,7 +40,7 @@ def parse_input(folder_name):
     num_buses = int(parameters.readline())
     size_bus = int(parameters.readline())
     constraints = []
-    
+
     for line in parameters:
         line = line[1: -2]
         curr_constraint = [num.replace("'", "") for num in line.split(", ")]
@@ -48,7 +48,7 @@ def parse_input(folder_name):
 
     return graph, num_buses, size_bus, constraints
 
-def solve(graph, num_buses, size_bus, constraints):
+def solve(graph, num_buses, size_bus, constraints, assignments=None):
     difficulty = nx.number_of_nodes(graph) + len(constraints)
     #print("Difficulty: {}".format(difficulty))
     # This should be an initial greedy strategy that constructs a starting state for the annealer.
@@ -58,7 +58,7 @@ def solve(graph, num_buses, size_bus, constraints):
     names = list(graph.nodes)
     names_set = set(graph.nodes)
 
-    
+
 
     # initial state, a randomly-ordered bunch of people on the bus
     def initialize_randomly():
@@ -104,8 +104,15 @@ def solve(graph, num_buses, size_bus, constraints):
                         output[i].append(friend)
                         names_set.remove(friend)
 
-    weak_greedy()
 
+    if not assignments:
+        weak_greedy()
+        #initialize_randomly()
+    else:
+        output = assignments
+
+
+    # Pad buses with Nones
     for i in range(len(output)):
         while len(output[i]) < size_bus:
             output[i].append(None)
@@ -146,7 +153,7 @@ def solve(graph, num_buses, size_bus, constraints):
     elif num_nodes <= 500:
         tsp.Tmax = 5
         tsp.Tmin = 0.01
-        tsp.steps = 16000
+        tsp.steps = 6000
         tsp.updates = 3000
     else:
         tsp.Tmax = 15
@@ -165,7 +172,7 @@ def solve(graph, num_buses, size_bus, constraints):
     tsp.copy_strategy = "deepcopy"
     state, e = tsp.anneal()
 
-    
+
     for i in range(len(state)):
         state[i] = [x for x in state[i] if x is not None]
     #print()
@@ -183,6 +190,8 @@ def main(folders=["small", "medium", "large"], graphName = None):
         the portion which writes it to a file to make sure their output is
         formatted correctly.
     '''
+    use_previous_solution = True
+
     size_categories = folders
     if not os.path.isdir(path_to_outputs):
         os.mkdir(path_to_outputs)
@@ -191,7 +200,7 @@ def main(folders=["small", "medium", "large"], graphName = None):
         category_path = path_to_inputs + "/" + size
         output_category_path = path_to_outputs + "/" + size
         category_dir = os.fsencode(category_path)
-        
+
         if not os.path.isdir(output_category_path):
             os.mkdir(output_category_path)
 
@@ -200,7 +209,7 @@ def main(folders=["small", "medium", "large"], graphName = None):
             folders = os.listdir(category_dir)
         else:
             folders = [graphName]
-        
+
         #Shuffles input folders so they don't run in order
         random.shuffle(folders)
         num_left = len(folders)
@@ -208,24 +217,39 @@ def main(folders=["small", "medium", "large"], graphName = None):
         old_scores = 0
         new_scores = 0
         for input_folder in folders:
-            input_name = os.fsdecode(input_folder) 
+            input_name = os.fsdecode(input_folder)
             inputfoldername = (category_path + "/" + input_name)
             outputfoldername = output_category_path + "/" + input_name + ".out"
             localoutputname = my_outputs + "/" + size + "/" + input_name + ".out"
 
-            # The next line ensures that the solver only solves the graphs that haven't yet been solved. We'll need to take it out once we have solved everything. 
+            # The next line ensures that the solver only solves the graphs that haven't yet been solved. We'll need to take it out once we have solved everything.
             # if not os.path.isfile(outputfoldername):
             # if not False:
             if not False:
                 print("="*80)
+
+                fileExists = os.path.isfile(outputfoldername)
+                fileExistsLocally = os.path.isfile(localoutputname)
                 graph, num_buses, size_bus, constraints = parse_input(inputfoldername)
+
                 print("Solving {} ({}/{})".format(input_name, count, num_left))
-                solution = solve(graph, num_buses, size_bus, constraints)
+
+                if not fileExists or not use_previous_solution:
+                    solution = solve(graph, num_buses, size_bus, constraints)
+                else:
+                    output = open(outputfoldername)
+                    assignments = []
+                    for line in output:
+                        line = line[1: -2]
+                        curr_assignment = [node.replace("'", "") for node in line.split(", ")]
+                        assignments.append(curr_assignment)
+                    output.close()
+                    solution = solve(graph, num_buses, size_bus, constraints, assignments)
                 sol_score1 = get_score(graph, constraints, num_buses, size_bus, solution)
                 sol_score = 1 - sol_score1[0]
+
+
                 if sol_score >= 0:
-                    fileExists = os.path.isfile(outputfoldername)
-                    fileExistsLocally = os.path.isfile(localoutputname)
                     if fileExistsLocally:
                         prev_score = 1 - score_output(inputfoldername, localoutputname)[0]
                     elif fileExists:
@@ -241,7 +265,7 @@ def main(folders=["small", "medium", "large"], graphName = None):
                     print(sol_score1[1])
                     if (improvement > 0 and sol_score <= 1) or (sol_score == 1 and not fileExists):
                         writelocation = my_outputs + "/" + size + "/" + input_name + ".out"
-                        output_file = open(writelocation, "w")     
+                        output_file = open(writelocation, "w")
                         for i in range(len(solution)):
                             output_file.write(str(solution[i]) + "\n")
                         output_file.close()
@@ -253,7 +277,7 @@ def main(folders=["small", "medium", "large"], graphName = None):
         print("Total improvement this batch: {}%".format(((old_scores - new_scores)/old_scores)*100))
         print("-"*80)
 
-            
+
 
 
 if __name__ == '__main__':
@@ -266,5 +290,3 @@ if __name__ == '__main__':
         main([sys.argv[1]], sys.argv[2])
     else:
         raise ValueError("Bad input format.")
-
-
