@@ -45,6 +45,9 @@ python solver.py file_size [solves either small/medium/large depending on file_s
 python solver.py file_name [solves a specific file]
 ```
 ### Before committing:  
+##### Please pull before you run output_merger.
+ 
+
 You should run output_merger.py which will merge your local folder so we always have the best outputs in outputs folder.
 ```
 python output_merger.py
