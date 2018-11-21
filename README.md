@@ -34,7 +34,7 @@ mkdir -p MY_FOLDER_NAME_HERE/{small,medium,large}
 Inside of the file write:  
 > folder = "ian"
   
-To actually run the solver in one the three modes:
+The solver runs in three different modes:
 ```
 python solver.py [solves all inputs]
 ```
@@ -51,5 +51,9 @@ python solver.py file_name [solves a specific file]
 You should run output_merger.py which will merge your local folder so we always have the best outputs in outputs folder.
 ```
 python output_merger.py
+```
+If you want to merge outputs from all local folders, you can use: 
+```
+python output_merger.py all
 ```
 Make sure to add all the new files in outputs to your commit!
