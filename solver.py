@@ -4,6 +4,7 @@ import sys
 from sim_solver import SimSolver
 import random
 from output_scorer import get_score, score_output
+from myfolder import folder
 
 ###########################################
 # Change this variable to the path to 
@@ -17,6 +18,7 @@ path_to_inputs = "./inputs"
 # your outputs to be put in a 
 # different folder
 ###########################################
+my_outputs = "./" + folder
 path_to_outputs = "./outputs"
 
 def parse_input(folder_name):
@@ -33,7 +35,6 @@ def parse_input(folder_name):
             size_buses - an integer representing the number of students that can fit on a bus
             constraints - a list where each element is a list vertices which represents a single rowdy group
     '''
-    print(folder_name + "/graph.gml")
     graph = nx.read_gml(folder_name + "/graph.gml")
     parameters = open(folder_name + "/parameters.txt")
     num_buses = int(parameters.readline())
@@ -48,7 +49,8 @@ def parse_input(folder_name):
     return graph, num_buses, size_bus, constraints
 
 def solve(graph, num_buses, size_bus, constraints):
-
+    difficulty = nx.number_of_nodes(graph) + len(constraints)
+    #print("Difficulty: {}".format(difficulty))
     # This should be an initial greedy strategy that constructs a starting state for the annealer.
     output = []
     for x in range(num_buses):
@@ -126,13 +128,18 @@ def solve(graph, num_buses, size_bus, constraints):
         print("\t", lst)
     '''
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
-    #auto_schedule = tsp.auto(minutes=1)
-    tsp.Tmax = 150
-    tsp.Tmin = 1
+    #auto_schedule = tsp.auto(minutes=0.5)
+    tsp.Tmax = 5
+    tsp.Tmin = 0.001
     tsp.steps = 2000
-    tsp.updates = 1000
+    tsp.updates = 500
 
     #tsp.set_schedule(auto_schedule)
+    #print("Tmax: {}".format(tsp.Tmax))
+    #print("Tmin: {}".format(tsp.Tmin))
+    #print("Steps: {}".format(tsp.steps))
+    #print("Updates: {}".format(tsp.updates))
+
     # since our state is just a list, slice is the fastest way to copy
     tsp.copy_strategy = "deepcopy"
     state, e = tsp.anneal()
@@ -140,10 +147,10 @@ def solve(graph, num_buses, size_bus, constraints):
     
     for i in range(len(state)):
         state[i] = [x for x in state[i] if x is not None]
-    print()
-    print("%f score:" % e)
-    for lst in state:
-        print("\t", lst)
+    #print()
+    #print("%f score:" % e)
+    #for lst in state:
+        #print("\t", lst)
     return state
 
 
@@ -162,7 +169,6 @@ def main(folders=["small", "medium", "large"], graphName = None):
     for size in size_categories:
         category_path = path_to_inputs + "/" + size
         output_category_path = path_to_outputs + "/" + size
-        print(category_path)
         category_dir = os.fsencode(category_path)
         
         if not os.path.isdir(output_category_path):
@@ -170,7 +176,6 @@ def main(folders=["small", "medium", "large"], graphName = None):
 
         #If the user is not specifying a particular graph to run on
         if not graphName:
-            print(category_dir)
             folders = os.listdir(category_dir)
         else:
             folders = [graphName]
@@ -182,16 +187,17 @@ def main(folders=["small", "medium", "large"], graphName = None):
         old_scores = 0
         new_scores = 0
         for input_folder in folders:
+            print("="*80)
             input_name = os.fsdecode(input_folder) 
             inputfoldername = (category_path + "/" + input_name)
             outputfoldername = output_category_path + "/" + input_name + ".out"
 
             # The next line ensures that the solver only solves the graphs that haven't yet been solved. We'll need to take it out once we have solved everything. 
+            # if not os.path.isfile(outputfoldername):
             if not False:
                 graph, num_buses, size_bus, constraints = parse_input(inputfoldername)
                 print("Solving {} ({}/{})".format(input_name, count, num_left))
                 solution = solve(graph, num_buses, size_bus, constraints)
-                #print("DONE: ", str(solution))
                 sol_score1 = get_score(graph, constraints, num_buses, size_bus, solution)
                 sol_score = 1 - sol_score1[0]
                 if sol_score >= 0:
@@ -203,10 +209,11 @@ def main(folders=["small", "medium", "large"], graphName = None):
                     new_scores += sol_score
                     prev_score = prev_score if prev_score > 0 else 0.000000001
                     improvement = ((prev_score - sol_score)/prev_score)*100
-                    print("Old score: {} | New score: {} | Improvement: {}%".format(prev_score, sol_score, improvement))
+                    print("Old score: {0:.2f}".format(prev_score).ljust(19) + "|".ljust(3) + "New score: {0:.2f}".format(sol_score).ljust(19) + "|".ljust(3) + "Improvement: {0:.2f}%".format(improvement).ljust(15))
                     print(sol_score1[1])
                     if improvement > 0:
-                        output_file = open(outputfoldername, "w")     
+                        writelocation = my_outputs + "/" + size + "/" + input_name + ".out"
+                        output_file = open(writelocation, "w")     
                         for i in range(len(solution)):
                             output_file.write(str(solution[i]) + "\n")
 
@@ -224,8 +231,6 @@ def main(folders=["small", "medium", "large"], graphName = None):
 
 if __name__ == '__main__':
     len_args = len(sys.argv)
-    print("Found {} args".format(len_args))
-    print(sys.argv[1])
     if len_args == 1:
         main()
     elif len_args == 2:
