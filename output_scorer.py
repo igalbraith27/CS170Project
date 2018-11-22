@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 # Examples:
 #   python3 output_scorer.py ./inputs/small/12 ./outputs/small/12.out
 ####################################################
+path_to_outputs = "./outputs"
+path_to_inputs = "./inputs"
 
 def score_output(input_folder, output_file):
     '''
@@ -107,7 +109,32 @@ def get_score(graph, constraints, num_buses, size_bus, assignments):
 
     return score, "Valid output submitted with score: {}".format(score)
 
+def autograder():
+    count = 0
+    total_score = 0
+    
+    for size in ["small", "medium", "large"]:
+        category_path = path_to_inputs + "/" + size
+        output_category_path = path_to_outputs + "/" + size
+        category_dir = os.fsencode(category_path)
+        folders = os.listdir(category_dir)
+        for input_folder in folders:
+            input_name = os.fsdecode(input_folder)
+            inputf = (category_path + "/" + input_name)
+            outputf = output_category_path + "/" + input_name + ".out"
+            score = score_output(inputf, outputf)[0]
+            total_score += score
+            count += 1
+            sys.stdout.write('\r'+str(total_score/count))
+            sys.stdout.flush()
+    print()
+    print("-"*80)
+    sys.stdout.write('\r'+"FINAL SCORE: {0:.10f}% of friendships maintained".format(total_score/count))
+    print("-"*80)
 
 if __name__ == '__main__':
-    score, msg = score_output(sys.argv[1], sys.argv[2])
-    print(msg)
+    if len(sys.argv) == 3:
+        score, msg = score_output(sys.argv[1], sys.argv[2])
+        print(msg)
+    elif len(sys.argv) == 2 and sys.argv[1] == "autograder":
+        autograder()
