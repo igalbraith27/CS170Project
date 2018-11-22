@@ -145,18 +145,18 @@ def solve(graph, num_buses, size_bus, constraints, assignments=None):
     num_nodes = len(graph.nodes)
     if num_nodes <= 50:
         tsp.Tmax = 3
-        tsp.Tmin = 0.00001
+        tsp.Tmin = 0.001
         tsp.steps = 80000
         tsp.updates = 500
     elif num_nodes <= 500:
         tsp.Tmax = 5
-        tsp.Tmin = 0.01
+        tsp.Tmin = 0.1
         tsp.steps = 6000
         tsp.updates = 3000
     else:
         tsp.Tmax = 15
         tsp.Tmin = 0.01
-        tsp.steps = 7000
+        tsp.steps = 10000
         tsp.updates = 10000
 
 
