@@ -1,6 +1,8 @@
 from __future__ import print_function
 import random
 from simanneal import Annealer
+import copy
+
 
 """The annealer class for our NP Complete Problem for CS170. """
 
@@ -23,13 +25,30 @@ class SimSolver(Annealer):
         self.change = 0
         self.current_energy = None
         super(SimSolver, self).__init__(state)
+        self.rowdy = self.get_rowdy()
 
+
+    def get_rowdy(self):
+        rowdy_groups = []
+        constraints = self.constraints
+        for bus in self.state:
+            for rowdy in constraints:
+                intersection = list(set(rowdy) & set(bus))
+                if intersection == rowdy:
+                    rowdy_groups.append(rowdy)
+                    constraints.remove(rowdy) 
+        return rowdy_groups
+        
     def move(self):
         """Swaps two people on two random buses."""
-        bus1 = random.randint(0, len(self.state) - 1)
-        bus2 = random.randint(0, len(self.state) - 1)
-        person1 = random.randint(0, len(self.state[bus1]) - 1)
-        person2 = random.randint(0, len(self.state[bus2]) - 1)
+        def find_random_people():
+            bus1 = random.randint(0, len(self.state) - 1)
+            bus2 = random.randint(0, len(self.state) - 1)
+            while bus2 == bus1:
+                bus2 = random.randint(0, len(self.state) - 1)
+            person1 = random.randint(0, len(self.state[bus1]) - 1)
+            person2 = random.randint(0, len(self.state[bus2]) - 1)
+            return bus1, bus2, person1, person2
         """oldfriendcount = 0
         newfriendcount = 0
         p1 = self.state[bus1][person1]
@@ -45,7 +64,20 @@ class SimSolver(Annealer):
             for person in self.state[bus2]:
                 if person in friends2:
                     oldfriendcount +=1"""
-        self.state[bus1][person1], self.state[bus2][person2] = self.state[bus2][person2], self.state[bus1][person1]
+        
+        bus1, bus2, person1, person2 = find_random_people()
+        stateCopy = copy.deepcopy(self.state)
+        stateCopy[bus1][person1], stateCopy[bus2][person2] = stateCopy[bus2][person2], stateCopy[bus1][person1]
+        
+        while self.check_if_empty(stateCopy):
+            print("Detected empty bus. Fixing...")
+            stateCopy = copy.deepcopy(self.state)
+            bus1, bus2, person1, person2 = find_random_people()
+            stateCopy = copy.deepcopy(self.state)
+            stateCopy[bus1][person1], stateCopy[bus2][person2] = stateCopy[bus2][person2], stateCopy[bus1][person1]
+        
+        self.state = stateCopy
+
         """p1 = self.state[bus1][person1]
         if p1:
             friends1 = self.graph.neighbors(p1)
@@ -59,8 +91,13 @@ class SimSolver(Annealer):
                 if person in friends2:
                     newfriendcount +=1"""
         
-        #self.change = oldfriendcount - newfriendcount
+        #self.change =  newfriendcount - oldfriendcount
 
+    def check_if_empty(self, tempState):
+        for i in range(len(tempState)):
+            if len(tempState[i]) <= 0:
+                return True
+        return False
 
     def energy(self):
         """Calculates the score of a given state."""
@@ -132,22 +169,45 @@ class SimSolver(Annealer):
         # print(score)
         #if score == 0:
             #raise ValueError('A very specific bad thing happened.')
-        """if self.current_energy:
-            net_change = (self.current_energy - score)*self.graph.number_of_edges()
-            print(net_change)
         if self.current_energy != None:
             alt_score = self.new_energy()
             print(score == alt_score)
-        self.current_energy = score"""
+        self.current_energy = score
         return score
 
     def new_energy(self):
         if self.change == 0:
             return self.current_energy
         
-        o = self.current_energy
+        old = self.current_energy
         total_friendships = self.graph.number_of_edges()
-        c = self.change
+        delta = self.change
         self.change = 0
-        return o + c/total_friendships
+        new_rowdy = self.get_rowdy()
+        if self.rowdy != new_rowdy:
+            add_edges = 0
+            for rowdy in self.rowdy:
+                for student in rowdy:
+                    friends = self.graph.neighbors(student)
+                    bus = -1
+                    for b in self.state:
+                       if student in b:
+                           bus = b 
+                           break
+                    add_edges += len(list(set(friends) & set(self.state[bus]))) 
+            remove_edges = 0
+            for rowdy in new_rowdy:
+                for student in rowdy:
+                    friends = self.graph.neighbors(student)
+                    bus = -1
+                    for b in self.state:
+                        if student in b:
+                            bus = b 
+                            break
+                    remove_edges += len(list(set(friends) & set(self.state[bus]))) 
+
+            self.rowdy = new_rowdy
+            return old + delta/total_friendships + add_edges/total_friendships - remove_edges/total_friendships
+
+        return old + delta/total_friendships
 

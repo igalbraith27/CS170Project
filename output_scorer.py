@@ -129,6 +129,7 @@ def autograder():
             sys.stdout.flush()
     print()
     sys.stdout.write('\r' + "-"*80)
+    print()
     print("FINAL SCORE: {0:.10f}% of friendships maintained".format(total_score/count))
     print("-"*80)
 
