@@ -20,6 +20,8 @@ class SimSolver(Annealer):
         self.num_buses = num_buses
         self.size_bus = size_bus
         self.graph = graph
+        self.change = 0
+        self.current_energy = None
         super(SimSolver, self).__init__(state)
 
     def move(self):
@@ -28,7 +30,36 @@ class SimSolver(Annealer):
         bus2 = random.randint(0, len(self.state) - 1)
         person1 = random.randint(0, len(self.state[bus1]) - 1)
         person2 = random.randint(0, len(self.state[bus2]) - 1)
+        oldfriendcount = 0
+        newfriendcount = 0
+        p1 = self.state[bus1][person1]
+
+        if p1:
+            friends1 = self.graph.neighbors(p1)
+            for person in self.state[bus1]:
+                if person in friends1:
+                    oldfriendcount +=1
+        p2 = self.state[bus2][person2]
+        if p2:
+            friends2 = self.graph.neighbors(p2)
+            for person in self.state[bus2]:
+                if person in friends2:
+                    oldfriendcount +=1
         self.state[bus1][person1], self.state[bus2][person2] = self.state[bus2][person2], self.state[bus1][person1]
+        p1 = self.state[bus1][person1]
+        if p1:
+            friends1 = self.graph.neighbors(p1)
+            for person in self.state[bus1]:
+                if person in friends1:
+                    newfriendcount +=1
+        p2 = self.state[bus2][person2]
+        if p2:
+            friends2 = self.graph.neighbors(p2)
+            for person in self.state[bus2]:
+                if person in friends2:
+                    newfriendcount +=1
+        
+        self.change = oldfriendcount - newfriendcount
 
 
     def energy(self):
@@ -101,4 +132,22 @@ class SimSolver(Annealer):
         # print(score)
         #if score == 0:
             #raise ValueError('A very specific bad thing happened.')
+        if self.current_energy:
+            net_change = (self.current_energy - score)*self.graph.number_of_edges()
+            print(net_change)
+        if self.current_energy != None:
+            alt_score = self.new_energy()
+            print(score == alt_score)
+        self.current_energy = score
         return score
+
+    def new_energy(self):
+        if self.change == 0:
+            return self.current_energy
+        
+        o = self.current_energy
+        total_friendships = self.graph.number_of_edges()
+        c = self.change
+        self.change = 0
+        return o + c/total_friendships
+

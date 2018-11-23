@@ -128,8 +128,8 @@ def autograder():
             sys.stdout.write('\r'+str(total_score/count))
             sys.stdout.flush()
     print()
-    print("-"*80)
-    sys.stdout.write('\r'+"FINAL SCORE: {0:.10f}% of friendships maintained".format(total_score/count))
+    sys.stdout.write('\r' + "-"*80)
+    print("FINAL SCORE: {0:.10f}% of friendships maintained".format(total_score/count))
     print("-"*80)
 
 def worst(threshold = 0.9):
@@ -155,7 +155,7 @@ def worst(threshold = 0.9):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 3 and sys.argv[1] != "worst":
         score, msg = score_output(sys.argv[1], sys.argv[2])
         print(msg)
     elif len(sys.argv) == 2 and sys.argv[1] == "autograder":
