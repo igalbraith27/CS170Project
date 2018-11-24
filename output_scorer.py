@@ -128,10 +128,10 @@ def autograder():
             sys.stdout.write('\r'+str(total_score/count))
             sys.stdout.flush()
     print()
-    sys.stdout.write('\r' + "-"*80)
+    sys.stdout.write('\r' + "-"*70)
     print()
     print("FINAL SCORE: {0:.10f}% of friendships maintained".format(total_score/count))
-    print("-"*80)
+    print("-"*70)
 
 def worst(threshold = 0.9):
     for size in ["small", "medium", "large"]:
@@ -146,10 +146,10 @@ def worst(threshold = 0.9):
             score = score_output(inputf, outputf)[0]
             if score > threshold:
                 print()
-                print("-"*80)
+                print("-"*70)
                 sys.stdout.write('\r'+"Potential bad output with a score of {} compared to threshold value of {}".format(score, threshold))
                 sys.stdout.write('\r'+"Check this file: " + outputf)
-                print("-"*80)
+                print("-"*70)
 
 
 

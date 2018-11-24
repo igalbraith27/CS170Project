@@ -48,7 +48,7 @@ def parse_input(folder_name):
 
     return graph, num_buses, size_bus, constraints
 
-def solve(graph, num_buses, size_bus, constraints, assignments=None):
+def solve(graph, num_buses, size_bus, constraints, config_file, assignments=None):
     difficulty = nx.number_of_nodes(graph) + len(constraints)
     #print("Difficulty: {}".format(difficulty))
     # This should be an initial greedy strategy that constructs a starting state for the annealer.
@@ -141,7 +141,24 @@ def solve(graph, num_buses, size_bus, constraints, assignments=None):
         print("\t", lst)
     '''
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
-    auto_schedule = tsp.auto(minutes=5)
+    
+    if not os.path.isfile("config" + "/" + config_file):
+        auto_schedule = tsp.auto(minutes=5)
+        config_file = open("config" + "/" + config_file, "w")
+        tsp.set_schedule(auto_schedule)
+        tsp.updates = len(graph.nodes)*10
+        config_file.write(str(tsp.Tmax) + "\n")
+        config_file.write(str(tsp.Tmin) + "\n")
+        config_file.write(str(tsp.steps) + "\n")
+        config_file.write(str(tsp.updates) + "\n")
+        config_file.close()
+    else:
+        configs = []
+        config_file = open("config" + "/" + config_file)
+        for line in config_file:
+            configs.append(float(line.strip()))
+        config_file.close()
+        tsp.Tmax, tsp.Tmin, tsp.steps, tsp.updates = configs[0], configs[1], configs[2], configs[3]
     """num_nodes = len(graph.nodes)
     if num_nodes <= 50:
         tsp.Tmax = 5
@@ -158,14 +175,11 @@ def solve(graph, num_buses, size_bus, constraints, assignments=None):
         tsp.Tmin = 0.1
         tsp.steps = 20000
         tsp.updates = 50000"""
+    
 
-
-    tsp.set_schedule(auto_schedule)
-    tsp.updates = len(graph.nodes)*10
-    print("Tmax: {}".format(tsp.Tmax))
-    print("Tmin: {}".format(tsp.Tmin))
-    print("Steps: {}".format(tsp.steps))
-    print("Updates: {}".format(tsp.updates))
+    #tsp.set_schedule(auto_schedule)
+    print()
+    print("Tmax: {}, Tmin: {}, Steps: {}, Updates: {}".format(tsp.Tmax, tsp.Tmin, tsp.steps, tsp.updates))
 
     # since our state is just a list, slice is the fastest way to copy
     tsp.copy_strategy = "deepcopy"
@@ -225,7 +239,7 @@ def main(folders=["small", "medium", "large"], graphName = None):
             # if not os.path.isfile(outputfoldername):
             # if not False:
             if not False:
-                print("="*80)
+                print("="*70)
 
                 fileExists = os.path.isfile(outputfoldername)
                 fileExistsLocally = os.path.isfile(localoutputname)
@@ -243,7 +257,7 @@ def main(folders=["small", "medium", "large"], graphName = None):
                         curr_assignment = [node.replace("'", "") for node in line.split(", ")]
                         assignments.append(curr_assignment)
                     output.close()
-                    solution = solve(graph, num_buses, size_bus, constraints, assignments)
+                    solution = solve(graph, num_buses, size_bus, constraints, size + "/" + input_name, assignments)
                 sol_score1 = get_score(graph, constraints, num_buses, size_bus, solution)
                 sol_score = 1 - sol_score1[0]
                 if sol_score >= 0:
@@ -255,8 +269,11 @@ def main(folders=["small", "medium", "large"], graphName = None):
                         prev_score = 1
                     old_scores += prev_score
                     new_scores += sol_score
-                    prev_score = prev_score if prev_score > 0 else 0.000000001
-                    improvement = ((prev_score - sol_score)/prev_score)*100
+                    if (prev_score == sol_score):
+                        improvement = 0
+                    else:
+                        prev_score = prev_score if prev_score > 0 else 0.000000001
+                        improvement = ((prev_score - sol_score)/prev_score)*100
                     print()
                     print("Old score: {0:.2f}".format(prev_score).ljust(19) + "|".ljust(3) + "New score: {0:.2f}".format(sol_score).ljust(19) + "|".ljust(3) + "Improvement: {0:.2f}%".format(improvement).ljust(15))
                     print(sol_score1[1])
@@ -270,9 +287,9 @@ def main(folders=["small", "medium", "large"], graphName = None):
                     print(sol_score1[1])
                 count +=1
         old_scores = old_scores if old_scores > 0 else 0.00000001
-        print("-"*80)
+        print("-"*70)
         print("Total improvement this batch: {}%".format(((old_scores - new_scores)/old_scores)*100))
-        print("-"*80)
+        print("-"*70)
 
 
 
