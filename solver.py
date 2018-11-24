@@ -141,30 +141,31 @@ def solve(graph, num_buses, size_bus, constraints, assignments=None):
         print("\t", lst)
     '''
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
-    #auto_schedule = tsp.auto(minutes=0.5)
-    num_nodes = len(graph.nodes)
+    auto_schedule = tsp.auto(minutes=5)
+    """num_nodes = len(graph.nodes)
     if num_nodes <= 50:
-        tsp.Tmax = 3
-        tsp.Tmin = 0.001
-        tsp.steps = 80000
+        tsp.Tmax = 5
+        tsp.Tmin = 0.01
+        tsp.steps = 100000
         tsp.updates = 500
     elif num_nodes <= 500:
         tsp.Tmax = 5
-        tsp.Tmin = 0.1
-        tsp.steps = 6000
+        tsp.Tmin = 0.01
+        tsp.steps = 100000
         tsp.updates = 3000
     else:
-        tsp.Tmax = 15
-        tsp.Tmin = 0.01
-        tsp.steps = 10000
-        tsp.updates = 10000
+        tsp.Tmax = 50
+        tsp.Tmin = 0.1
+        tsp.steps = 20000
+        tsp.updates = 50000"""
 
 
-    #tsp.set_schedule(auto_schedule)
-    #print("Tmax: {}".format(tsp.Tmax))
-    #print("Tmin: {}".format(tsp.Tmin))
-    #print("Steps: {}".format(tsp.steps))
-    #print("Updates: {}".format(tsp.updates))
+    tsp.set_schedule(auto_schedule)
+    tsp.updates = len(graph.nodes)*10
+    print("Tmax: {}".format(tsp.Tmax))
+    print("Tmin: {}".format(tsp.Tmin))
+    print("Steps: {}".format(tsp.steps))
+    print("Updates: {}".format(tsp.updates))
 
     # since our state is just a list, slice is the fastest way to copy
     tsp.copy_strategy = "deepcopy"

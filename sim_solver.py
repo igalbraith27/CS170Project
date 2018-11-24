@@ -169,10 +169,10 @@ class SimSolver(Annealer):
         # print(score)
         #if score == 0:
             #raise ValueError('A very specific bad thing happened.')
-        if self.current_energy != None:
-            alt_score = self.new_energy()
-            print(score == alt_score)
-        self.current_energy = score
+        # if self.current_energy != None:
+        #     alt_score = self.new_energy()
+        #     print(score == alt_score)
+        # self.current_energy = score
         return score
 
     def new_energy(self):
