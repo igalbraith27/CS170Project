@@ -143,7 +143,13 @@ def solve(graph, num_buses, size_bus, constraints, config_file, assignments=None
     tsp = SimSolver(output, constraints, num_buses, size_bus, graph)
     
     if not os.path.isfile("config" + "/" + config_file):
-        auto_schedule = tsp.auto(minutes=25)
+        num_nodes = len(graph.nodes)
+        if num_nodes <= 50:
+            auto_schedule = tsp.auto(minutes=20)
+        elif num_nodes <= 500:
+            auto_schedule = tsp.auto(minutes=40)
+        else:
+            auto_schedule = tsp.auto(minutes=80)
         config_file = open("config" + "/" + config_file, "w")
         tsp.set_schedule(auto_schedule)
         tsp.updates = len(graph.nodes)*10
