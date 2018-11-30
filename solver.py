@@ -145,11 +145,11 @@ def solve(graph, num_buses, size_bus, constraints, config_file, assignments=None
     if not os.path.isfile("config" + "/" + config_file):
         num_nodes = len(graph.nodes)
         if num_nodes <= 50:
-            auto_schedule = tsp.auto(minutes=20)
+            auto_schedule = tsp.auto(minutes=30)
         elif num_nodes <= 500:
-            auto_schedule = tsp.auto(minutes=40)
-        else:
             auto_schedule = tsp.auto(minutes=80)
+        else:
+            auto_schedule = tsp.auto(minutes=120)
         config_file = open("config" + "/" + config_file, "w")
         tsp.set_schedule(auto_schedule)
         tsp.updates = len(graph.nodes)*10
@@ -246,15 +246,23 @@ def main(folders=["small", "medium", "large"], graphName = None):
             # if not False:
             if not False:
                 print("="*70)
-
                 fileExists = os.path.isfile(outputfoldername)
                 fileExistsLocally = os.path.isfile(localoutputname)
                 graph, num_buses, size_bus, constraints = parse_input(inputfoldername)
+                if fileExistsLocally:
+                    prev_score = 1 - score_output(inputfoldername, localoutputname)[0]
+                elif fileExists:
+                    prev_score = 1 - score_output(inputfoldername, outputfoldername)[0]
+                else:
+                    prev_score = 1
+                if not fileExists: 
+                    print("Solving {} ({}/{})".format(input_name, count, num_left))
+                else:
+                    print("Solving {} ({}/{}) [Previous energy: {:.5f}]".format(input_name, count, num_left, prev_score))
 
-                print("Solving {} ({}/{})".format(input_name, count, num_left))
 
                 if not fileExists or not use_previous_solution:
-                    solution = solve(graph, num_buses, size_bus, constraints)
+                    solution = solve(graph, num_buses, size_bus, constraints, size + "/" + input_name, assignments)
                 else:
                     output = open(outputfoldername)
                     assignments = []
@@ -267,12 +275,6 @@ def main(folders=["small", "medium", "large"], graphName = None):
                 sol_score1 = get_score(graph, constraints, num_buses, size_bus, solution)
                 sol_score = 1 - sol_score1[0]
                 if sol_score >= 0:
-                    if fileExistsLocally:
-                        prev_score = 1 - score_output(inputfoldername, localoutputname)[0]
-                    elif fileExists:
-                        prev_score = 1 - score_output(inputfoldername, outputfoldername)[0]
-                    else:
-                        prev_score = 1
                     old_scores += prev_score
                     new_scores += sol_score
                     if (prev_score == sol_score):
