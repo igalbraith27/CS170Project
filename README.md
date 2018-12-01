@@ -42,7 +42,7 @@ python solver.py [solves all inputs]
 python solver.py file_size [solves either small/medium/large depending on file_size]
 ```
 ```
-python solver.py file_name [solves a specific file]
+python solver.py file_size file_name [solves a specific size's file]
 ```
 ### Before committing:  
 ##### Please pull before you run output_merger.
